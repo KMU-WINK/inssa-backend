@@ -7,8 +7,8 @@
 ### ⚙️ 개발 환경 (24.07.26 기준)
 - 이후 업데이트 예정입니다.
 - <img src="https://img.shields.io/badge/Spring-6DB33F?style=flat-square&logo=Spring&logoColor=white"/>
-- build : Gradle - Groovy Project
-- Spring Boot : 3.x.xJ
+- build : Gradle - Groovy
+- Spring Boot : 3.3.2
 - Language : Java 17
 - database : h2
 ### ✔️ 주요 기능
