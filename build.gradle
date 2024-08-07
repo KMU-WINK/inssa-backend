@@ -23,10 +23,12 @@ dependencies {
 
 	// Spring Boot Data JPA Starter
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	// 타임 리프에서 스프링 시큐리티를 사용하기 위한 의존성 추가
-	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
-	//thyme leaf - gradle
+
+	// Thymeleaf
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	// Thymeleaf Spring Security extras
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5:3.0.4.RELEASE'
 
 	// Spring Boot Security Starter
 	implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -38,11 +40,13 @@ dependencies {
 	// H2 Database (테스트용)
 	runtimeOnly 'com.h2database:h2'
 
+	// MySQL Connector
+	implementation 'mysql:mysql-connector-java:8.0.33'
+
 	// Test dependencies
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 }
-
 
 tasks.named('test') {
 	useJUnitPlatform()
