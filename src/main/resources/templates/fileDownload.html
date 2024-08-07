@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>File Download</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+</head>
+<body>
+<h1>File Download</h1>
+<div>
+    <p>File Name: <span th:text="${file.fileName}"></span></p>
+    <p>File Type: <span th:text="${file.fileType}"></span></p>
+    <a th:href="@{'/download/' + ${file.id}}" class="btn btn-primary">Download File</a>
+</div>
+</body>
+</html>

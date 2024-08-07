@@ -41,11 +41,13 @@ public class WebSecurityConfig {
                 )
                 .formLogin(form -> form // 폼 기반 로그인 설정
                         .loginPage("/login")
-                        .defaultSuccessUrl("/articles")
+                        .defaultSuccessUrl("/file?continue", true)
+                        .permitAll()
                 )
                 .logout(logout -> logout // 로그아웃 설정
                         .logoutSuccessUrl("/login")
                         .invalidateHttpSession(true)
+                        .permitAll()
                 )
                 .csrf(AbstractHttpConfigurer::disable); // CSRF 비활성화
 
