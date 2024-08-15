@@ -2,43 +2,53 @@ package com.wink.inssa_backend.controller;
 
 import com.wink.inssa_backend.domain.ImageFile;
 import com.wink.inssa_backend.service.FileService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
-@Controller
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/files")
 public class FileController {
 
-    @Autowired
-    private FileService fileService;
+    private final FileService fileService;
 
-    @GetMapping("/file")
-    public String getFileForm() {
-        return "file";
-    }
-
+    // 파일 업로드 API
     @PostMapping("/upload")
-    public String uploadFile(@RequestParam("file") MultipartFile file, Model model) {
+    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
-            fileService.saveFile(file);
-            model.addAttribute("message", "File uploaded successfully!");
+            // 파일 URL 생성 로직을 FileService에 위임
+            String fileUrl = fileService.storeFile(file);
+
+            // 파일 정보 저장
+            ImageFile imageFile = ImageFile.builder()
+                    .name(file.getOriginalFilename())
+                    .url(fileUrl)
+                    .uploadedAt(LocalDateTime.now())
+                    .build();
+
+            fileService.saveFile(imageFile);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body("File uploaded successfully!");
         } catch (IOException e) {
-            model.addAttribute("message", "Failed to upload file!");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file!");
         }
-        return "file";
     }
 
+    // 파일 다운로드 API
     @GetMapping("/download/{id}")
-    public String downloadFile(@PathVariable Long id, Model model) {
+    public ResponseEntity<String> downloadFile(@PathVariable Long id) {
         ImageFile imageFile = fileService.getFile(id);
-        model.addAttribute("file", imageFile);
-        return "fileDownload";
+
+        if (imageFile == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
+        }
+
+        return ResponseEntity.ok(imageFile.getUrl());
     }
 }
