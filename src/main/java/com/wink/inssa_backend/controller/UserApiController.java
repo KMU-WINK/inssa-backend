@@ -3,11 +3,11 @@ package com.wink.inssa_backend.controller;
 import com.wink.inssa_backend.dto.LoginRequestDTO;
 import com.wink.inssa_backend.service.AddUserRequest;
 import com.wink.inssa_backend.service.UserService;
-import com.wink.inssa_backend.dto.LoginRequestDTO;
 import com.wink.inssa_backend.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,10 +22,10 @@ import jakarta.validation.Valid;
 public class UserApiController {
 
     private final UserService userService;
-    private final AuthService authService; // 새로운 AuthService 추가
+    private final AuthService authService;
 
     // 회원 가입 처리
-    @CrossOrigin(origins = "http://localhost:8080") // 허용할 출처를 지정합니다.
+    @CrossOrigin(origins = "http://localhost:8080")
     @PostMapping("/api/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody AddUserRequest request, BindingResult result) {
         if (result.hasErrors()) {
@@ -42,7 +42,10 @@ public class UserApiController {
         String token = authService.authenticate(request.getUserId(), request.getPassword());
 
         if (token != null) {
-            return ResponseEntity.ok().body("Login successful. Token: " + token);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + token); // 헤더에 토큰 추가
+
+            return ResponseEntity.ok().headers(headers).body("Login successful"+token);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
