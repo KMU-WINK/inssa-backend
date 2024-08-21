@@ -42,7 +42,7 @@ public class WebSecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/login", "/api/signup", "/api/logout").permitAll() // API 엔드포인트 허용
+                        .requestMatchers("/api/login", "/api/signup", "/api/logout", "/api/upload").permitAll() // API 엔드포인트 허용
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용하지 않음 (JWT 같은 토큰 기반 인증 사용 시)

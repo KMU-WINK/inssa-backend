@@ -8,30 +8,26 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Table(name = "image_files")
+@Table(name = "file")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class ImageFile {
+public class File {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
-
-    @Column(name = "url", nullable = false)
-    private String url;
 
     @Column(name = "uploaded_at", nullable = false)
     private LocalDateTime uploadedAt;
 
     @Builder
-    public ImageFile(String name, String url, LocalDateTime uploadedAt) {
+    public File(String name, LocalDateTime uploadedAt) {
         this.name = name;
-        this.url = url;
         this.uploadedAt = uploadedAt;
     }
 }

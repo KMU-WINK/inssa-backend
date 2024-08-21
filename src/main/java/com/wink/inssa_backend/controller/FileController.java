@@ -1,6 +1,7 @@
 package com.wink.inssa_backend.controller;
 
-import com.wink.inssa_backend.domain.ImageFile;
+import com.wink.inssa_backend.domain.File;
+import com.wink.inssa_backend.repository.FileRepository;
 import com.wink.inssa_backend.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -9,46 +10,34 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/files")
 public class FileController {
 
     private final FileService fileService;
 
     // 파일 업로드 API
-    @PostMapping("/upload")
-    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
+    @PostMapping("/api/upload")
+    public ResponseEntity<List<File>> uploadFile(@RequestParam("file") MultipartFile[] files) {
         try {
-            // 파일 URL 생성 로직을 FileService에 위임
-            String fileUrl = fileService.storeFile(file);
-
-            // 파일 정보 저장
-            ImageFile imageFile = ImageFile.builder()
-                    .name(file.getOriginalFilename())
-                    .url(fileUrl)
-                    .uploadedAt(LocalDateTime.now())
-                    .build();
-
-            fileService.saveFile(imageFile);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body("File uploaded successfully!");
+            List<File> savedFiles = fileService.saveFiles(files);
+            return ResponseEntity.ok(savedFiles);
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file!");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     // 파일 다운로드 API
-    @GetMapping("/download/{id}")
+    @GetMapping("/api/download/{id}")
     public ResponseEntity<String> downloadFile(@PathVariable Long id) {
-        ImageFile imageFile = fileService.getFile(id);
+        File file = fileService.getFile(id);
 
-        if (imageFile == null) {
+        if (file == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
         }
 
-        return ResponseEntity.ok(imageFile.getUrl());
+        return ResponseEntity.ok(fileService.getFilePath(file));
     }
 }
