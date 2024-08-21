@@ -1,5 +1,6 @@
 package com.wink.inssa_backend.config;
 
+import com.wink.inssa_backend.security.JwtAuthenticationFilter;
 import com.wink.inssa_backend.service.UserDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -9,10 +10,13 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
@@ -22,6 +26,7 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 public class WebSecurityConfig {
 
     private final UserDetailService userService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     // 스프링 시큐리티 기능 비활성화
     @Bean
@@ -35,21 +40,14 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(auth -> auth // 새로운 메서드 체인 방식
-                        .requestMatchers("/login", "/signup", "/user").permitAll()
+                .cors(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable) // CSRF 비활성화
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/login", "/api/signup", "/api/logout").permitAll() // API 엔드포인트 허용
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form // 폼 기반 로그인 설정
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/file?continue", true)
-                        .permitAll()
-                )
-                .logout(logout -> logout // 로그아웃 설정
-                        .logoutSuccessUrl("/login")
-                        .invalidateHttpSession(true)
-                        .permitAll()
-                )
-                .csrf(AbstractHttpConfigurer::disable); // CSRF 비활성화
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용하지 않음 (JWT 같은 토큰 기반 인증 사용 시)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
 
         return http.build();
     }

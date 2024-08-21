@@ -22,10 +22,13 @@ public class UserService {
         }
 
         // 사용자 저장
+        String role = dto.getRole() != null ? dto.getRole() : "USER"; // role 기본값 설정
+
         User user = User.builder()
                 .userId(dto.getUserId()) // userId 사용
                 .password(bCryptPasswordEncoder.encode(dto.getPassword())) // 패스워드 암호화
                 .nickname(dto.getNickname())
+                .role(role) // role 설정
                 .build();
 
         return userRepository.save(user).getId();

@@ -11,13 +11,13 @@ import lombok.Setter;
 public class LoginRequestDTO {
 
     @NotBlank(message = "아이디는 필수 항목입니다.")
-    private String id;
+    private String userId;
 
     @NotBlank(message = "비밀번호는 필수 항목입니다.")
     private String password;
 
     public LoginRequestDTO(String id, String password) {
-        this.id = id;
+        this.userId = id;
         this.password = password;
     }
 }

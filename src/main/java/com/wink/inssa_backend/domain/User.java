@@ -16,14 +16,14 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class User implements UserDetails { // UserDetails를 상속받아 인증 객체로 사용
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 데이터베이스 식별자
+    private Long id;
 
     @Column(nullable = false, unique = true)
-    private String userId; // 사용자 구분을 위한 ID
+    private String userId;
 
     @Column(nullable = false)
     private String password;
@@ -31,21 +31,25 @@ public class User implements UserDetails { // UserDetails를 상속받아 인증
     @Column(nullable = false, unique = true)
     private String nickname;
 
+    @Column(nullable = true)
+    private String role; // 역할 필드 추가
+
     @Builder
-    public User(String userId, String password, String nickname) {
+    public User(String userId, String password, String nickname, String role) {
         this.userId = userId;
         this.password = password;
         this.nickname = nickname;
+        this.role = (role != null) ? role : "USER"; // 기본 역할 설정
     }
 
-    @Override // 권한 반환
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority(role)); // 역할 기반으로 권한 반환
     }
 
     @Override
     public String getUsername() {
-        return userId; // 이메일 대신 userId를 반환
+        return userId;
     }
 
     @Override
@@ -53,27 +57,24 @@ public class User implements UserDetails { // UserDetails를 상속받아 인증
         return password;
     }
 
-    // 계정 만료 여부 반환
+
     @Override
     public boolean isAccountNonExpired() {
-        return true; // true -> 만료되지 않음
+        return true;
     }
 
-    // 계정 잠금 여부 반환
     @Override
     public boolean isAccountNonLocked() {
-        return true; // true -> 잠금되지 않음
+        return true;
     }
 
-    // 패스워드 만료 여부 반환
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // true -> 만료되지 않음
+        return true;
     }
 
-    // 계정 사용 가능 여부 변환
     @Override
     public boolean isEnabled() {
-        return true; // true -> 사용 가능
+        return true;
     }
 }

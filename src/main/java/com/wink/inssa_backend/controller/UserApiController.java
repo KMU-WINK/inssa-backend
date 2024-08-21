@@ -1,7 +1,10 @@
 package com.wink.inssa_backend.controller;
 
+import com.wink.inssa_backend.dto.LoginRequestDTO;
 import com.wink.inssa_backend.service.AddUserRequest;
 import com.wink.inssa_backend.service.UserService;
+import com.wink.inssa_backend.dto.LoginRequestDTO;
+import com.wink.inssa_backend.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -10,10 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
@@ -22,28 +22,38 @@ import jakarta.validation.Valid;
 public class UserApiController {
 
     private final UserService userService;
+    private final AuthService authService; // 새로운 AuthService 추가
 
     // 회원 가입 처리
-    @PostMapping("/api/user")
+    @CrossOrigin(origins = "http://localhost:8080") // 허용할 출처를 지정합니다.
+    @PostMapping("/api/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody AddUserRequest request, BindingResult result) {
-        // 유효성 검사 실패 시 에러 응답 반환
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(result.getAllErrors());
         }
 
-        // 유효성 검사 통과 시 회원 가입 처리
         userService.save(request);
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+    }
+
+    // 로그인 처리
+    @PostMapping("/api/login")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO request) {
+        String token = authService.authenticate(request.getUserId(), request.getPassword());
+
+        if (token != null) {
+            return ResponseEntity.ok().body("Login successful. Token: " + token);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
     }
 
     // 로그아웃 처리
     @GetMapping("/api/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        // 로그아웃 처리 및 세션 무효화
         SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
         logoutHandler.logout(request, response, SecurityContextHolder.getContext().getAuthentication());
 
-        // 로그아웃 후 성공 메시지 반환
         return ResponseEntity.ok("User logged out successfully");
     }
 }
