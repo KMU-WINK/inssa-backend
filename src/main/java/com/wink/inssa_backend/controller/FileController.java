@@ -1,9 +1,11 @@
 package com.wink.inssa_backend.controller;
 
 import com.wink.inssa_backend.domain.File;
-import com.wink.inssa_backend.repository.FileRepository;
 import com.wink.inssa_backend.service.FileService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +20,12 @@ public class FileController {
 
     private final FileService fileService;
 
-    // 파일 업로드 API
+    private static final Logger logger = LoggerFactory.getLogger(FileController.class);
+
     @PostMapping("/api/upload")
     public ResponseEntity<List<File>> uploadFile(@RequestParam("file") MultipartFile[] files) {
+        logger.info("Received file upload request with {} files.", files.length);
+
         try {
             List<File> savedFiles = fileService.saveFiles(files);
             return ResponseEntity.ok(savedFiles);
@@ -29,15 +34,14 @@ public class FileController {
         }
     }
 
-    // 파일 다운로드 API
     @GetMapping("/api/download/{id}")
-    public ResponseEntity<String> downloadFile(@PathVariable Long id) {
+    public ResponseEntity<String> downloadFile(@PathVariable("id") Long id) {
         File file = fileService.getFile(id);
 
         if (file == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
         }
 
-        return ResponseEntity.ok(fileService.getFilePath(file));
+        return ResponseEntity.ok(file.getName());
     }
 }

@@ -22,12 +22,17 @@ public class File {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
+    @Lob
+    @Column(name = "data", nullable = false, columnDefinition = "LONGBLOB")
+    private byte[] data;
+
     @Column(name = "uploaded_at", nullable = false)
     private LocalDateTime uploadedAt;
 
     @Builder
-    public File(String name, LocalDateTime uploadedAt) {
+    public File(String name, byte[] data, LocalDateTime uploadedAt) {
         this.name = name;
+        this.data = data;
         this.uploadedAt = uploadedAt;
     }
 }

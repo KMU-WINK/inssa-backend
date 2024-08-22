@@ -23,6 +23,10 @@ spring:
         jdbc:
           time_zone: UTC
 
+
 jwt:
   secret-key: awhekdnsckddud0828awhekdnsckddud0828awhekdnsckddud0828
   expiration: 3600000
+
+file:
+  path: src/main/resources/static/files/
